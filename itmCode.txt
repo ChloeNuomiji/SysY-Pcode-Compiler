@@ -1,0 +1,14 @@
+0 declare var global_var = 
+1 ASSIGN global_var = 0 + 0
+2 
+INT_TYPE func([])
+3 ADD_RECORD
+4 ASSIGN t0 = global_var + 1
+5 ASSIGN global_var = t0 + 0
+6 RETURN 1
+7 DELETE_RECORD
+8 RETURN VOID
+9 
+INT_TYPE main(null)
+10 ADD_RECORD
+11 IF_BRANCH_0
