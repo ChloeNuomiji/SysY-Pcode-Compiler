@@ -24,7 +24,7 @@ int main() {
 3
 ```
 
-![demo1](E:\Github\SysY-Pcode-Compiler\demo1.gif)
+![demo1](https://github.com/ChloeNuomiji/SysY-Pcode-Compiler/blob/main/demo1.gif)
 
 #### isPrime
 
@@ -126,7 +126,7 @@ while times is 22 in total
 
 ```
 
-![demo2-isprime](E:\Github\SysY-Pcode-Compiler\demo2-isprime.gif)
+![demo2-isprime](https://github.com/ChloeNuomiji/SysY-Pcode-Compiler/blob/main/demo2-isprime.gif)
 
 ### 文件结构
 
