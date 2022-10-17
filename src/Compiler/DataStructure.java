@@ -10,13 +10,13 @@ import java.util.HashMap;
 
 
 public class DataStructure {
-   private HashMap<String, SymbolTable> symbolTables; //存所有的符号表
+   private HashMap<String, SymbolTable> symbolTables; // 存所有的符号表
    private HashMap<String, Integer> tmpExpMap; //临时变量（符号）表
-   private ArrayList<FourAddressCode> intermediaCodeList; // 中间代码集
-   private HashMap<String, Function> functionMap; //函数表
+   private ArrayList<FourAddressCode> intermediaCodeList; // 中间代码
+   private HashMap<String, Function> functionMap;
    private HashMap<String, Label> labelMap; // <labelName, Label>
    private HashMap<String, LabelCode> labelCodeMap;
-   private HashMap<String, FunctionDefineCode> funcDefCodeMap; // <funcName, code>
+   private HashMap<String, FunctionDefineCode> funcDefCodeMap; // funcName,
    private int mainEntry; // main入口的第一条指令codeNo
 
 
@@ -28,6 +28,7 @@ public class DataStructure {
       labelMap = new HashMap<>();
       funcDefCodeMap = new HashMap<>();
       String globalSymbolTableName = Consts.GLOBAL_SCOPE;
+      //SymbolTable globalSymbolTable = new SymbolTable(globalSymbolTableName, "", Consts.MEMORY_LOWEST_ADDRESS);
       SymbolTable globalSymbolTable = new SymbolTable(globalSymbolTableName, "");
       symbolTables.put(globalSymbolTableName, globalSymbolTable);
       mainEntry = 0;
@@ -232,16 +233,6 @@ public class DataStructure {
       return retLabel;
    }
 
-   public Label getLastOrLabel() {
-      String labelName = Label.getLastOrLabelName();
-      return labelMap.get(labelName);
-   }
-
-   public Label getLastAndLabel() {
-      String labelName = Label.getLastAndLabelName();
-      return labelMap.get(labelName);
-   }
-
    public void creatSomeCodeTable() {
       labelCodeMap = new HashMap<>();
       funcDefCodeMap = new HashMap<>();
@@ -255,6 +246,12 @@ public class DataStructure {
          }
       }
    }
+
+   public void creatFuncDefCodeTable() {
+
+   }
+
+
 
    // PRE: labelName do exist
    public LabelCode getLabelCode(String labelName) {

@@ -307,7 +307,7 @@ public class LexicalAnalyzer {
       }
       else {
          res = false;
-         System.out.println("error:不合法字符" + character);
+         System.out.println("error:不合法字符");
          System.exit(0);
       }
       return res;

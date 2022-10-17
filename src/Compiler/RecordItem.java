@@ -6,150 +6,97 @@ import java.util.HashMap;
 // RecordItem里面没有block and fatherBlock的概念，只有活动记录（stack）的概念
 public class RecordItem {
    private int address; // 在内存中的地址
-   private String name; // recordItem name, array[1]
-   private Integer value = null; // 10, value or address
-   private String identifierName; // var or array name
+   private String identifierName;
    private Consts.ValueType valueType; // INT or ADDRESS(1,2) or VOID
-   private boolean constantFlag;
-   private boolean isParameter;
-   private boolean isPointer;
-   private boolean isGlobalAddress;
-   private boolean isArray; // isArray element
    private int dimension;
    private int size1; // the size of dimension1
    private int size2; // the size of dimension2
-
+   private boolean constantFlag;
+   private boolean isParameter;
+   //private boolean isLocal; // todo: why need this field
+   private ArrayList<ArrayList<Integer>> valueList;
    private FormalParameter parameter; // if the record is para
-   //private Integer arrayAddress;
 
-   // var (not array)
    public RecordItem(int address, SymbolItem symbolItem) {
       this.address = address;
       identifierName = symbolItem.getName();
-      name = identifierName;
-      isArray = false;
       valueType = Consts.ValueType.INT_TYPE;
       dimension = symbolItem.getDimension();
       size1 = symbolItem.getSize1();
       size2 = symbolItem.getSize2();
       constantFlag = symbolItem.isConstantFlag();
-      if (constantFlag) {
-         value = 0;
-      }
       isParameter = false;
-      isPointer = false;
+      //isLocal = symbolItem.isLocal();
+      initialValueList();// no matter this record is in the golbal memory or the stack
+      /*
+      if (constantFlag) {
+         valueList = symbolItem.getConstValueList();
+      } else {
+         initialValueList();// no matter this record is in the golbal memory or the stack
+      }
+
+       */
       parameter = null;
    }
 
-   // 1 dimension array
-   public RecordItem(int address, SymbolItem symbolItem, int index1) {
-      this.address = address;
-      identifierName = symbolItem.getName();
-      name = identifierName + "[" + index1 + "]";
-      isArray = true;
-      valueType = Consts.ValueType.INT_TYPE;
-      dimension = symbolItem.getDimension();
-      size1 = symbolItem.getSize1();
-      size2 = symbolItem.getSize2();
-      constantFlag = symbolItem.isConstantFlag();
-      if (constantFlag) {
-         value = 0;
-      }
-      isParameter = false;
-      isPointer = false;
-      parameter = null;
-   }
-
-   // 2 dimension array
-   public RecordItem(int address, SymbolItem symbolItem, int index1, int index2) {
-      this.address = address;
-      identifierName = symbolItem.getName();
-      name = identifierName + "[" + index1 + "][" + index2 + "]";
-      isArray = true;
-      valueType = Consts.ValueType.INT_TYPE;
-      dimension = symbolItem.getDimension();
-      size1 = symbolItem.getSize1();
-      size2 = symbolItem.getSize2();
-      constantFlag = symbolItem.isConstantFlag();
-      if (constantFlag) {
-         value = 0;
-      }
-      isParameter = false;
-      isPointer = false;
-      parameter = null;
-   }
-
-   // parameter, address/pointer or value
-   public RecordItem(int address, FormalParameter parameter, boolean isPointer) {
+   public RecordItem(int address, FormalParameter parameter) {
       this.address = address;
       identifierName = parameter.getIdentifierName();
-      name = identifierName;
-      isArray = false;
-      valueType = parameter.getValueType(); // INT, ADDRESS1 or ADDRESS2
+      valueType = parameter.getValueType();
       this.parameter = parameter;
       constantFlag = false;
       isParameter = true;
-      this.isPointer = isPointer;
+      // todo: if parameter is address
       dimension = 0;
       size1 = 0;
       size2 = 0;
+      initialValueList();
+
    }
 
-   public String toString() {
-      return valueType + " " + identifierName;
+   private void initialValueList() {
+      ArrayList<Integer> zeroList = new ArrayList<>();
+      valueList = new ArrayList<>();
+      if (dimension == 0) {
+         zeroList.add(0);
+         valueList.add(zeroList);
+      } else if (dimension == 1) {
+         for (int i = 0; i < size1; i++) {
+            zeroList.add(0);
+         }
+         valueList.add(zeroList);
+      } else {
+         for (int i = 0; i < size1; i++) {
+            zeroList = new ArrayList<>();
+            for (int j = 0; j < size2; j++) {
+               zeroList.add(0);
+            }
+            valueList.add(zeroList);
+         }
+      }
    }
 
    public int getAddress() {
       return address;
    }
 
-   public String getName() {
-      return name;
-   }
-
    public String getIdentifierName() {
       return identifierName;
    }
 
-   public Consts.ValueType getValueType() {
-      return valueType;
+   public int getValue(int index1, int index2) {
+      if (dimension == 1) {
+         return valueList.get(0).get(index1);
+      }
+      return valueList.get(index1).get(index2);
    }
 
-   public int getDimension() {
-      return dimension;
-   }
-
-   public int getSize1() {
-      return size1;
-   }
-
-   public int getSize2() {
-      return size2;
-   }
-
-   public boolean isArray() {
-      return isArray;
-   }
-
-   public boolean isPointer() {
-      return isPointer;
-   }
-
-   // func(int arr[][2+3]) -> return 2+3
-   public Expression getParaConst2() {
-      return parameter.getConstExp2();
-   }
-
-   public int getValue() {
-      return value;
-   }
-
-   public void setValue(int newValue) {
+   public void setValue(int newValue, int index1, int index2) {
       // if the recode item is a constant, it can only be setValue when initial
-      value = newValue;
-   }
-
-   public void setGlobalAddress(boolean isGlobalAddress) {
-      this.isGlobalAddress = isGlobalAddress;
+      if (dimension == 1) {
+         valueList.get(0).set(index1, newValue);
+      } else {
+         valueList.get(index1).set(index2, newValue);
+      }
    }
 }

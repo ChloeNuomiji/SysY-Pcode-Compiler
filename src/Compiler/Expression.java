@@ -7,6 +7,7 @@ public class Expression implements Cloneable {
    private boolean isFixedValue;//是否确定isSurable,只有常量'a',和1111这样的是确认的
    private String scope;//如果是变量，所属的作用域, father
    private int number; // if isFixedValue, then have number
+   private boolean isArray;
    private String arrayName;
    private int dimension;
    private Expression index1; //第一维
@@ -17,7 +18,6 @@ public class Expression implements Cloneable {
    private static int tempVarId = 0;
    private String printString;
    private boolean isConstLVal; // 左值表达式的ident是否为const ident, can be set
-   private boolean isVar = false; // if construct by LVal, then isVar = true
 
    public Expression() {
 
@@ -53,6 +53,7 @@ public class Expression implements Cloneable {
       dimension = 0;
       isFixedValue = true;
       number = Integer.parseInt(name);
+      isArray = false;
       isExpression = true;
       printString = numStr;
       isConstLVal = false;
@@ -73,11 +74,11 @@ public class Expression implements Cloneable {
          expType = Consts.ExpType.LOCAL_VAR;
       }
       isFixedValue = false;
+      isArray = false;
       dimension = 0;
       isExpression = true;
       printString = name;
       isConstLVal = false;
-      isVar = true;
    }
 
    /**
@@ -104,11 +105,11 @@ public class Expression implements Cloneable {
          printString = arrayName + "[" + index1.toString() + "]" + "[" + index2.toString() + "]";
       }
       isFixedValue = false;
+      isArray = true;
       this.index1 = index1;
       this.index2 = index2;
       this.arrayName = arrayName;
       isConstLVal = false;
-      isVar = true;
    }
 
    /**
@@ -177,16 +178,16 @@ public class Expression implements Cloneable {
       return isExpression;
    }
 
-   public boolean isVar() {
-      return isVar;
-   }
-
    public Consts.ExpType getExpType() {
       return expType;
    }
 
    public Consts.ValueType getValueType() {
       return valueType;
+   }
+
+   public void setArray(boolean array) {
+      isArray = array;
    }
 
    public void setIndex1(Expression index1) {

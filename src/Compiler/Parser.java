@@ -20,6 +20,8 @@ public class Parser {
    private Consts.PrintMode printmode;
    private boolean isFinish;
    private int printLineNo;
+
+   //
    private DataStructure dataStructure;
    private boolean isReturnStmt;
    private Stack<Label> whileStack; // 记录是否在while block里
@@ -680,7 +682,6 @@ public class Parser {
          getSymbol();
          ArrayList<FormalParameter> formalParameters = FuncFParams(funcName);
          // maybe the formalParameters has error formal parameter(Error b, redefined)
-         // todo
          if (symbolType != Consts.SymbolType.RPARENT) {
             error.printError(lexicalAnalyzer.getLastVnLine(), Consts.ErrorType.j); // lack )
          } else {
@@ -1288,10 +1289,6 @@ public class Parser {
       Label endWhileLabel = new Label(Consts.LabelType.ENDWHILE_BRANCH);
       dataStructure.addLabel(endWhileLabel);
       whileStack.push(whileLabel); // 进入一层循环块
-      Label orLabel = new Label(Consts.LabelType.OR_LABEL); // add orLabel
-      dataStructure.addLabel(orLabel);
-      Label andLabel = new Label(Consts.LabelType.AND_LABEL); // add andLabel
-      dataStructure.addLabel(andLabel);
       if (symbolType != Consts.SymbolType.LPARENT) {
          // Error, skip, lack (
          return false;
@@ -1311,8 +1308,6 @@ public class Parser {
                printLex();
                getSymbol();
             }
-            LabelCode orCutCode = new LabelCode(blockName, orLabel); // while (A || B), A == 1, goto here(begin while)
-            dataStructure.addIntermediaCode(orCutCode);
             if (!Stmt(blockName)) {
                return false;
             } else {
@@ -1320,8 +1315,6 @@ public class Parser {
                dataStructure.addIntermediaCode(gotoCode);
                LabelCode endWhileCode = new LabelCode(blockName, endWhileLabel);
                dataStructure.addIntermediaCode(endWhileCode);
-               LabelCode andCode = new LabelCode(blockName, andLabel);
-               dataStructure.addIntermediaCode(andCode); // if (A && B) and A == 0, goto here
                whileStack.pop(); // 退出一层循环块
                printParse("<Stmt>");
                return true;
@@ -1340,10 +1333,6 @@ public class Parser {
       dataStructure.addIntermediaCode(ifLabelCode);
       Label endIfLabel = new Label(Consts.LabelType.ENDIF_BRANCH);
       dataStructure.addLabel(endIfLabel);
-      Label orLabel = new Label(Consts.LabelType.OR_LABEL);
-      dataStructure.addLabel(orLabel);
-      Label andLabel = new Label(Consts.LabelType.AND_LABEL);
-      dataStructure.addLabel(andLabel);
       if (symbolType != Consts.SymbolType.LPARENT) {
          //Error, skip, lack (
          return false;
@@ -1354,8 +1343,6 @@ public class Parser {
          Expression cmpExp = Consts.ZERO_DIGIT_EXPRESSION;
          BranchEqualCode beqCode = new BranchEqualCode(blockName, endIfLabel, condExp, cmpExp);
          dataStructure.addIntermediaCode(beqCode);
-         LabelCode orCode = new LabelCode(blockName, orLabel); // if (A || B) and A == 1, enter if block
-         dataStructure.addIntermediaCode(orCode);
          if (condExp.equals(Consts.ERROR_EXPRESSION)) {
             return false;
          } else {
@@ -1369,18 +1356,14 @@ public class Parser {
                // Error
                return false;
             } else {
-               boolean hasElse = false;
                if (symbolType == Consts.SymbolType.ELSETK) {
                   // if part, go to end if
-                  hasElse = true;
                   GotoCode gotoCode = new GotoCode(blockName, endIfLabel);
                   dataStructure.addIntermediaCode(gotoCode);
                   Label elseLabel = new Label(Consts.LabelType.ELSE_BRANCH);
                   dataStructure.addLabel(elseLabel);
                   LabelCode elseCode = new LabelCode(blockName, elseLabel);
                   dataStructure.addIntermediaCode(elseCode);
-                  LabelCode andCode = new LabelCode(blockName, andLabel);
-                  dataStructure.addIntermediaCode(andCode); // if (A && B) and A == 0 and hasElse, enter else block
                   beqCode.setGoToLabel(elseLabel);
                   printLex();
                   getSymbol();
@@ -1391,10 +1374,7 @@ public class Parser {
                }
                LabelCode endIfCode = new LabelCode(blockName, endIfLabel);
                dataStructure.addIntermediaCode(endIfCode);
-               if (!hasElse) {
-                  LabelCode andCode = new LabelCode(blockName, andLabel);
-                  dataStructure.addIntermediaCode(andCode); // if (A && B) and A == 0 and hasElse, goto end if
-               }
+
                printParse("<Stmt>");
                return true;
             }
@@ -1464,10 +1444,9 @@ public class Parser {
       String identifierName = symbol;
       //
       SymbolItem symbolToUse = dataStructure.lookupTableWhenUse(blockName, identifierName);
-      // todo: is
       if (symbolToUse == null) {
          // Error c, 使用未定义的符号
-         error.printError(errorLine, Consts.ErrorType.c);
+         error.printError(errorLine, Consts.ErrorType.c); // todo 就当无事发生？
          lexicalAnalyzer.skipread('\n');
          getSymbol();
          return Consts.FAKE_EXPRESSION;
@@ -1634,9 +1613,9 @@ public class Parser {
                error.printError(errorLine, Consts.ErrorType.e);
             }
             // 函数调用
-            // todo: 建立函数调用四元式，把返回值assign给exp ti；同时处理exp 的valuetype 的问题
+            // todo: 建立函数调用四元式，把返回值assign给ti；同时处理exp 的valuetype 的问题
             Consts.ValueType retValueType = callFunc.getReturnType(); // 暂时new一个临时变量的exp
-            exp = new Expression(Consts.ExpType.TEMP_VAR,  retValueType); // result exp, a tmp exp
+            exp = new Expression(Consts.ExpType.TEMP_VAR,  retValueType); // DUMMY CODE, result exp
             dataStructure.addTmpExpression(exp);
             String funcName = callFunc.getFuncName();
             CallFunctionCode callFunctionCode = new CallFunctionCode(blockName, funcName, argumentList, exp);
@@ -1683,6 +1662,7 @@ public class Parser {
                         dataStructure.addIntermediaCode(assignItmCode); // ti = -1 * exp
                         break;
                      case "!":
+                        // todo: deal with !
                         leftExp = Consts.ZERO_DIGIT_EXPRESSION;
                         expType = Consts.ExpType.TEMP_VAR;
                         targetExp = new Expression(expType, Consts.ValueType.INT_TYPE);
@@ -1780,8 +1760,7 @@ public class Parser {
          else {
             //准备生成t0 = a * b
             Consts.ExpType expType = Consts.ExpType.TEMP_VAR;
-            Consts.ValueType targetValueType = judgeTargetExpValueType(retExp, expUnaryExp2);
-            Expression targetExp = new Expression(expType, targetValueType);
+            Expression targetExp = new Expression(expType, Consts.ValueType.INT_TYPE);
             dataStructure.addTmpExpression(targetExp);
             AssignCode assignItmCode = new AssignCode(targetExp, retExp, expUnaryExp2, op, blockName);
             dataStructure.addIntermediaCode(assignItmCode);
@@ -1821,8 +1800,7 @@ public class Parser {
          } else {
             //准备生成t0 = a + b
             Consts.ExpType expType = Consts.ExpType.TEMP_VAR;
-            Consts.ValueType targetValueType = judgeTargetExpValueType(retExp, mulExp2);
-            Expression targetExp = new Expression(expType, targetValueType);
+            Expression targetExp = new Expression(expType, Consts.ValueType.INT_TYPE);
             dataStructure.addTmpExpression(targetExp);
             AssignCode assignItmCode = new AssignCode(targetExp, retExp, mulExp2, op, blockName);
             dataStructure.addIntermediaCode(assignItmCode);
@@ -1831,18 +1809,6 @@ public class Parser {
       }
       printParse("<AddExp>");
       return retExp;
-   }
-
-   private Consts.ValueType judgeTargetExpValueType(Expression lefExp, Expression rightExp) {
-      Consts.ValueType type1 = lefExp.getValueType();
-      Consts.ValueType type2 = rightExp.getValueType();
-      if (type1 == Consts.ValueType.ADDRESS1 || type2 == Consts.ValueType.ADDRESS1) {
-         return Consts.ValueType.ADDRESS1;
-      } else if (type1 == Consts.ValueType.ADDRESS2 || type2 == Consts.ValueType.ADDRESS2) {
-         return Consts.ValueType.ADDRESS2;
-      } else {
-         return Consts.ValueType.INT_TYPE;
-      }
    }
 
    // 改写 RelExp → AddExp { ('<' | '>' | '<=' | '>=') AddExp}
@@ -1912,7 +1878,6 @@ public class Parser {
    // 逻辑与表达式
    private Expression LAndExp(String blockName) throws Exception {
       Expression retExp = EqExp(blockName);
-      Label andLabel = new Label(Consts.LabelType.AND_LABEL);//andCondEnd
       if (retExp.equals(Consts.ERROR_EXPRESSION)) {
          // Error, must be EqExp
          return Consts.ERROR_EXPRESSION;
@@ -1922,12 +1887,6 @@ public class Parser {
          printParse("<LAndExp>");
          printLex();
          getSymbol();
-
-         Label shortCutLabel = dataStructure.getLastAndLabel();
-         BranchEqualCode beqCode = new BranchEqualCode(blockName, shortCutLabel, retExp, Consts.ZERO_DIGIT_EXPRESSION);
-
-         //BranchEqualCode beqCode = new BranchEqualCode(blockName, andLabel, retExp, Consts.ZERO_DIGIT_EXPRESSION);
-         dataStructure.addIntermediaCode(beqCode);// todo
          Expression eqExp2 = EqExp(blockName);
          if (eqExp2.equals(Consts.ERROR_EXPRESSION)) {
             // Error, must be EqExp
@@ -1941,8 +1900,6 @@ public class Parser {
          dataStructure.addIntermediaCode(compareItmCode);
          retExp = targetExp;
       }
-//      LabelCode andCode = new LabelCode(blockName, andLabel);
-//      dataStructure.addIntermediaCode(andCode);
       printParse("<LAndExp>");
       return retExp;
    }
@@ -1961,11 +1918,6 @@ public class Parser {
          printParse("<LOrExp>");
          printLex();
          getSymbol();
-
-         Label shortCutLabel = dataStructure.getLastOrLabel();
-         BranchEqualCode beqCode = new BranchEqualCode(blockName, shortCutLabel, retExp, Consts.ONE_DIGIT_EXPRESSION);
-         dataStructure.addIntermediaCode(beqCode);
-
          Expression lAndExp2 = LAndExp(blockName);
          if (lAndExp2.equals(Consts.ERROR_EXPRESSION)) {
             // Error, must be LAndExp
@@ -1982,6 +1934,7 @@ public class Parser {
       printParse("<LOrExp>");
       return retExp;
    }
+
 
    //  ConstExp → AddExp
    // 常量表达式

@@ -1,8 +1,0 @@
-const int array[5] = {100,2000, 3000, -2,   3};
-
-int main(){
-    int    c;
-       c = getint();
-    printf("output is %d",c);
-    return c;
-}
