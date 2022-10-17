@@ -6,11 +6,7 @@ public class Label {
    private int labelId; // IF_BRANCH_2, 2, automatically generate
    private static int ifLabelId = 0;
    private static int whileLabelId = 0;
-   private static int andLabelId = 0;
-   private static int orLabelId = 0;
-   //private static int normalLabelId = 0;
-
-
+   private static int normalLabelId = 0;
 
    // PRE: first construct if_branch and while_branch, then construct relevant else/end branch
    public Label(Consts.LabelType labelType) {
@@ -39,19 +35,11 @@ public class Label {
             labelName += "_" + (whileLabelId - 1);
             labelId = whileLabelId - 1;
             break;
-         case OR_LABEL:
-            labelName += "_" + orLabelId;
-            labelId = orLabelId;
-            orLabelId++;
+         case NORMAL_LABEL:
+            labelName += "_" + normalLabelId;
+            labelId = normalLabelId;
+            normalLabelId++;
             break;
-         case AND_LABEL:
-            labelName += "_" + andLabelId;
-            labelId = andLabelId;
-            andLabelId++;
-//         case NORMAL_LABEL:
-//            labelName += "_" + normalLabelId;
-//            labelId = normalLabelId;
-//            normalLabelId++;
          default:
       }
       this.labelName = labelName;
@@ -68,16 +56,4 @@ public class Label {
    public int getLabelId() {
       return labelId;
    }
-
-   public static String getLastOrLabelName() {
-      return Consts.LabelType.OR_LABEL.toString() + "_" + (orLabelId - 1);
-   }
-
-   public static String getLastAndLabelName() {
-      return Consts.LabelType.AND_LABEL.toString() + "_" + (andLabelId - 1);
-   }
-
-//   public static String getLastNormalLabelName() {
-//      return Consts.LabelType.NORMAL_LABEL.toString() + "_" + (normalLabelId - 1);
-//   }
 }

@@ -118,7 +118,6 @@ public class Consts {
    public static final Expression ERROR_EXPRESSION = new Expression("ERROR_EXPRESSION", true);
    public static final Expression FAKE_EXPRESSION = new Expression("^FAKE_EXPRESSION", false);
    public static final Expression ZERO_DIGIT_EXPRESSION = new Expression("0");
-   public static final Expression ONE_DIGIT_EXPRESSION = new Expression("1");
    public static final FormalParameter ERROR_FORMALPARAMETER = new FormalParameter(ValueType.INT_TYPE, -1, null, "");
    public static final FourAddressCode FINAL_CODE = new FourAddressCode(FourAddressType.END_Code);
    public static final int MEMORY_HIGHEST_ADDRESS = 100000;
@@ -235,8 +234,7 @@ public class Consts {
       ENDIF_BRANCH,
       WHILE_BRANCH,
       ENDWHILE_BRANCH,
-      OR_LABEL,
-      AND_LABEL
+      NORMAL_LABEL
    }
 
 

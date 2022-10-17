@@ -4,7 +4,7 @@ import java.io.PrintStream;
 
 public class Compiler {
    public static void main(String[] args) throws Exception {
-      boolean isDebug = true;
+      boolean isDebug = false;
       boolean isForloop = false;
       Consts.PrintMode printmode = Consts.PrintMode.BOTH_CONSOLE_AND_FILE;
       String inputAddress = "input.txt";
@@ -14,7 +14,6 @@ public class Compiler {
       String outputAddress = "output.txt";
       String errorAddress = "error.txt";
       String intermediaCodeFile = "itmCode.txt";
-      //
       System.out.println("------------BEGIN PARSING------------");
       Parser parser = new Parser(sourceCodeAddress, lexResultFileAddress,
               outputAddress, errorAddress, isDebug, printmode);
@@ -27,8 +26,8 @@ public class Compiler {
       dataStructure.printIntermediaCode(System.out);
 
       System.out.println("------------BEGIN INTERPRETING------------");
-      //Interpreter interpreter = new Interpreter(inputAddress, resultAddress, dataStructure, isDebug, printmode);
-      //interpreter.startInterpret();
+      Interpreter interpreter = new Interpreter(inputAddress, resultAddress, dataStructure, isDebug);
+      interpreter.startInterpret();
 
 
 
